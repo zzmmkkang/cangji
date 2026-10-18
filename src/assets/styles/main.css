@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* 仓记 CangJi 主题变量（浅色单主题，契约第 8 章：不做主题切换） */
+:root {
+  /* 主色：翡翠绿 */
+  --cangji-primary: #059669;
+  --cangji-primary-dark: #047857;
+  --cangji-primary-light: #d1fae5;
+  /* 负库存标红（契约 7.4 / D2） */
+  --cangji-danger: #dc2626;
+  /* 背景 / 文字 */
+  --cangji-bg: #f8fafc;
+  --cangji-text: #1e293b;
+}
+
+body {
+  margin: 0;
+  background-color: var(--cangji-bg);
+  color: var(--cangji-text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "PingFang SC",
+    "Microsoft YaHei",
+    "Segoe UI",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

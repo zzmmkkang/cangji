@@ -1,0 +1,27 @@
+# Node / 前端构建
+node_modules/
+dist/
+*.local
+
+# Rust 构建
+src-tauri/target/
+
+# Tauri 本地生成的 schema（desktop/android schema 由 tauri 自动产出）
+src-tauri/gen/schemas/
+
+# 本地数据文件：SQLite 库及 WAL/SHM、数据包、导出/缓存目录
+*.db
+*.db-wal
+*.db-shm
+*.cjpack
+src-tauri/exports/
+src-tauri/cache/
+
+# Android 签名密钥（契约 1.4：密钥文件与密码严禁入库）
+*.keystore
+*.jks
+keystore.properties
+
+# 系统杂项
+.DS_Store
+Thumbs.db
