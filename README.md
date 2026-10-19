@@ -50,9 +50,9 @@ GitHub Release（`v0.1.0`）提供三个产物，**均为本机实测构建**：
 |---|---|
 | `CangJi_0.1.0_x64-setup.exe` | Windows NSIS 安装包（**主推**，2,178,866 B） |
 | `CangJi_0.1.0_x64_en-US.msi` | Windows MSI 安装包（2,924,544 B；文件名 `en-US` 因构建机 locale，安装界面为英文） |
-| `app-universal-release-unsigned.apk` | Android universal APK，4 ABI 合并（27,879,549 B；**当前未签名**，需自行签名后安装，见下文） |
+| `app-universal-release.apk` | Android universal APK，4 ABI 合并（27,942,424 B；**已签名**，可直接安装到 Android 7.0+） |
 
-> ⚠️ 如实说明：0.1.0 的 APK **未签名**（未生成正式 keystore），不能直接 sideload；MSI 语言标识为 en-US。签名步骤见 [`docs/release/RELEASE-v0.1.0.md`](docs/release/RELEASE-v0.1.0.md)。
+> ⚠️ 如实说明：Release 上的 APK 已于 2026-10-19 用自签名证书签名（APK Signature Scheme v2/v3），可直接安装；**从源码自行构建出的 APK 仍默认是 unsigned**，需按签名步骤处理。MSI 语言标识为 en-US。签名步骤与实测记录见 [`docs/release/RELEASE-v0.1.0.md`](docs/release/RELEASE-v0.1.0.md)。
 
 ## 从源码构建
 

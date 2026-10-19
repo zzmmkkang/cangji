@@ -4,7 +4,9 @@
 > 本文档是**供用户在有网络/有 git 的机器上执行**的发版清单；A6 环境无 git 仓库、不联网 push，**未执行任何 git 命令、未创建 GitHub Release**，以下步骤均为待执行项。
 >
 > **✅ 执行记录（2026-10-19）**：第 1、3、4 节已实际执行完成——仓库 <https://github.com/zzmmkkang/cangji>（master，177 文件）、commit `c52fd4f`、tag `v0.1.0`、Release <https://github.com/zzmmkkang/cangji/releases/tag/v0.1.0>（三资产字节数与第 2 节一致，非 draft）。
-> 实操备注：`gh auth login` 与 `git push` 均需 `HTTPS_PROXY=http://127.0.0.1:7890`（github.com 直连被重置，api.github.com 直连可用）；本机未配 git 全局身份，commit 用环境变量 `GIT_AUTHOR_*` 注入；暂存时需排除 `gen/android/.kotlin` 错误日志。§2 签名、§0 中人工验收与截图仍待执行。
+> 实操备注：`gh auth login` 与 `git push` 均需 `HTTPS_PROXY=http://127.0.0.1:7890`（github.com 直连被重置，api.github.com 直连可用）；本机未配 git 全局身份，commit 用环境变量 `GIT_AUTHOR_*` 注入；暂存时需排除 `gen/android/.kotlin` 错误日志。
+>
+> **✅ 签名记录（2026-10-19）**：§3 已实际执行——keystore 生成于**仓库外** `C:\Users\mac\.cangji\cangji-release.keystore`（凭据同目录 `KEYSTORE-CREDENTIALS.txt`），签名产物 `app-universal-release.apk`（27,942,424 B，v2/v3 方案，`apksigner verify` 通过）已上传 Release 并替换原 unsigned 资产。§0 中人工验收与截图仍待执行。
 
 ---
 
@@ -62,7 +64,7 @@ git push -u origin main
 |---|---|---|
 | Windows NSIS 安装包（**主推**） | `E:\仓库管理\src-tauri\target\release\bundle\nsis\CangJi_0.1.0_x64-setup.exe` | 2,178,866 |
 | Windows MSI 安装包（en-US） | `E:\仓库管理\src-tauri\target\release\bundle\msi\CangJi_0.1.0_x64_en-US.msi` | 2,924,544 |
-| Android APK（universal，**未签名**） | `E:\仓库管理\src-tauri\gen\android\app\build\outputs\apk\universal\release\app-universal-release-unsigned.apk` | 27,879,549 |
+| Android APK（universal） | 构建产物 `…\app-universal-release-unsigned.apk` 27,879,549 → 签名后 `…\app-universal-release.apk` | **27,942,424（已签名，Release 实际发布此文件）** |
 
 ### 2.2 打 tag
 
@@ -89,13 +91,13 @@ gh release create v0.1.0 `
 
 **Release 正文必须包含的如实说明**（与 README/CHANGELOG 一致）：
 
-1. APK 为 **unsigned**，无法直接安装，需自行签名（或临时 `npx tauri android build --apk --debug` 出 debug 签名包）；
+1. APK 已签名（v2/v3，自签名证书），可直接安装到 Android 7.0+；从源码重新构建出的产物仍为 unsigned，需按 §3 签名；
 2. MSI 文件名 `en-US` 为构建机 locale 所致，安装界面英文；
 3. 22 项人工验收 checklist 尚未全部执行（见 `docs/handoffs/H5-测试打包-交接与验收单.md` 附录 A）。
 
 ---
 
-## 3. APK 签名 keystore 生成步骤（当前未生成，按需执行）
+## 3. APK 签名 keystore 生成步骤（已于 2026-10-19 执行完成；下列模板留作后续版本复用）
 
 > 前提：`.gitignore` 已覆盖 `*.keystore`、`*.jks`、`keystore.properties`（`gen/android/.gitignore` 另覆盖 `key.properties`），**密钥与密码严禁提交**。生成后 `git status` 确认未被跟踪。
 
@@ -123,11 +125,38 @@ $apkOut = "E:\仓库管理\src-tauri\gen\android\app\build\outputs\apk\universal
 & "$buildTools\apksigner.bat" verify $apkOut
 ```
 
-（或按 [Tauri 官方 Android 签名文档](https://v2.tauri.app/distribute/sign/android/) 配置；两条路径均为**模板、本机未实测**——H5 按任务要求未生成 keystore。）
+（或按 [Tauri 官方 Android 签名文档](https://v2.tauri.app/distribute/sign/android/) 配置。）上述路径**已于 2026-10-19 实测通过**，见 §3.4。
 
 ### 3.3 验证
 
 真机 `adb install -r $apkOut` 或直接安装，确认能建库启动（对应 H5 checklist F1/F2）。
+
+### 3.4 执行记录（2026-10-19 实测）
+
+keystore 生成在**仓库外**，避免任何误提交风险：
+
+```powershell
+# 1) 生成（32 位随机密码，不入库；商店密码与 keystore 必须一起离线备份）
+keytool -genkeypair -v -keystore "C:\Users\mac\.cangji\cangji-release.keystore" `
+  -alias cangji -keyalg RSA -keysize 2048 -validity 10000 `
+  -storepass <32位随机密码> -keypass <同上> `
+  -dname "CN=CangJi, OU=Mobile, O=CangJi Contributors, L=Unknown, ST=Unknown, C=CN"
+
+# 2) 对齐 + 签名（apksigner 0.9 / build-tools 35.0.0）
+$bt = "C:\Android\Sdk\build-tools\35.0.0"
+& "$bt\zipalign.exe" -p -f 4 $apkIn "<仓库外临时目录>\aligned-tmp.apk"
+& "$bt\apksigner.bat" sign --ks "C:\Users\mac\.cangji\cangji-release.keystore" `
+  --ks-key-alias cangji --ks-pass "pass:<密码>" --key-pass "pass:<密码>" --out $apkOut "<临时对齐包>"
+
+# 3) 验证 → v2/v3 均为 true
+& "$bt\apksigner.bat" verify --verbose --print-certs $apkOut
+```
+
+结果：`app-universal-release.apk` **27,942,424 B**；v1=false / **v2=true / v3=true**（minSdk 24+ 足够）；签名证书 SHA-256 `36b1e6089c861daff7d6bcba588abf515143a282b8808d6b7a6c45a73d321bab`。
+
+凭据与 keystore 同存 `C:\Users\mac\.cangji\`（`KEYSTORE-CREDENTIALS.txt` 含别名/密码/指纹）。**丢失即无法给已安装用户推送同签名升级包**，务必离线备份。
+
+补充说明：`keypass = storepass`（JDK17 默认 PKCS12 密钥库要求一致）；`-dname` 为自签名证书主题，非实名，仅供 Android 校验签名一致性。
 
 ---
 
