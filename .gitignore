@@ -9,6 +9,9 @@ src-tauri/target/
 # Tauri 本地生成的 schema（desktop/android schema 由 tauri 自动产出）
 src-tauri/gen/schemas/
 
+# Android 构建期产生的 Kotlin 编译日志目录（非源码，禁止入库）
+src-tauri/gen/android/.kotlin/
+
 # 本地数据文件：SQLite 库及 WAL/SHM、数据包、导出/缓存目录
 *.db
 *.db-wal
