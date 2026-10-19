@@ -2,6 +2,9 @@
 
 > 环节：A6 开源发布 ｜ 项目：仓记 CangJi（repo：`cangji`）｜ 日期：2026-10-18
 > 本文档是**供用户在有网络/有 git 的机器上执行**的发版清单；A6 环境无 git 仓库、不联网 push，**未执行任何 git 命令、未创建 GitHub Release**，以下步骤均为待执行项。
+>
+> **✅ 执行记录（2026-10-19）**：第 1、3、4 节已实际执行完成——仓库 <https://github.com/zzmmkkang/cangji>（master，177 文件）、commit `c52fd4f`、tag `v0.1.0`、Release <https://github.com/zzmmkkang/cangji/releases/tag/v0.1.0>（三资产字节数与第 2 节一致，非 draft）。
+> 实操备注：`gh auth login` 与 `git push` 均需 `HTTPS_PROXY=http://127.0.0.1:7890`（github.com 直连被重置，api.github.com 直连可用）；本机未配 git 全局身份，commit 用环境变量 `GIT_AUTHOR_*` 注入；暂存时需排除 `gen/android/.kotlin` 错误日志。§2 签名、§0 中人工验收与截图仍待执行。
 
 ---
 
